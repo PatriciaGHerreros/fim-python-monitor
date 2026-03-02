@@ -1,0 +1,29 @@
+name: Monitor de Seguridad HDS
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Esto se ejecuta cada hora en punto
+  workflow_dispatch:      # Esto te permite ejecutarlo manualmente con un botón
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargando código del repo
+      uses: actions/checkout@v3
+
+    - name: Configurando Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Instalando librerías
+      run: |
+        pip install requests python-dotenv
+
+    - name: Ejecutando el Monitor
+      env:
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: python monitor.py
