@@ -1,4 +1,4 @@
-# 🛡️ Monitor de Integridad de Archivos (FIM-HDS)
+# 🛡️ Monitor de Integridad de Archivos (FIM)
 
 Sistema de vigilancia activa para pequeñas emprendedoras. Detecta cambios no autorizados en sitios web y envía alertas instantáneas por Telegram.
 
