@@ -75,7 +75,17 @@ def revisar_una_vez(carpeta):
         comparar(carpeta)
 
 if __name__ == "__main__":
+    print("🚀 Iniciando el Monitor...") # Esto nos dirá que el script arrancó
+    
     if os.getenv("GITHUB_ACTIONS"):
+        print("🤖 Detectado entorno: GitHub Actions")
         revisar_una_vez(".")
     else:
-        revisar_una_vez("/home/horizontedigitalseguro/HDS-web")
+        ruta_a_vigilar = "/home/horizontedigitalseguro/HDS-web"
+        print(f"🏠 Detectado entorno: Local (PythonAnywhere)")
+        print(f"🔍 Vigilando la carpeta: {ruta_a_vigilar}")
+        
+        if os.path.exists(ruta_a_vigilar):
+            revisar_una_vez(ruta_a_vigilar)
+        else:
+            print(f"❌ ERROR: La carpeta {ruta_a_vigilar} no existe.")
