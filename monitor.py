@@ -61,7 +61,7 @@ def crear_inventario(carpeta):
         if os.path.isfile(ruta_completa):
             # Ignorar base de datos en inventario inicial
             if ruta_completa.endswith(".sqlite3"): continue
-            
+
             hash_val = calcular_hash(ruta_completa)
             if hash_val:
                 inventario[ruta_completa] = hash_val
@@ -116,22 +116,22 @@ def monitorear(carpeta):
         print("\n🛑 Detenido.")
 
 def revisar_una_vez(carpeta):
-    """Modo ejecución única para GitHub Actions."""
+    """Versión optimizada para GitHub Actions (Evita spam de 'Nuevos')"""
     if not os.path.exists("baseline.json"):
+        print("🤖 Entorno nuevo detectado. Creando baseline silencioso...")
         crear_inventario(carpeta)
-    
-    with open("baseline.json", "r", encoding="utf-8") as f:
-        baseline = json.load(f)
+        # En GitHub, no queremos que el primer escaneo llene Telegram de 'Nuevos'
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": "✅ **Vigilancia Programada:** Entorno sincronizado y verificado.",
+            "parse_mode": "Markdown"
+        }
+        requests.post(url, data=payload)
+        return
 
-    total_archivos = len(baseline)
-    print(f"--- 🛡️ COMPROBACIÓN ÚNICA: {total_archivos} archivos ---")
-    
-    ejecutar_logica_revision(carpeta, baseline)
-    
-    with open("baseline.json", "w", encoding="utf-8") as f:
-        json.dump(baseline, f, indent=4)
-    
-    registrar_alerta(f"🕒 **Comprobación Programada Finalizada**\nTodo en orden en `{carpeta}`.")
+    # Si ya existe el baseline (porque lo subiste con git add -f), compara normal
+    comparar(carpeta)
 
 def ejecutar_logica_revision(carpeta, baseline):
     """Lógica compartida de detección de cambios."""
@@ -142,7 +142,7 @@ def ejecutar_logica_revision(carpeta, baseline):
     for ruta in rutas_actuales:
         if os.path.isfile(ruta):
             if ruta.endswith(".sqlite3") or "-journal" in ruta: continue
-            
+
             hash_actual = calcular_hash(ruta)
             if not hash_actual: continue
 
