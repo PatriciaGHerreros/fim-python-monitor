@@ -57,17 +57,19 @@ def comparar(carpeta):
         if ruta not in baseline:
             mensajes.append(f"⚠️ **NUEVO:** {ruta}")
 
+    # --- BLOQUE CORREGIDO ---
     if mensajes:
         texto = "\n".join(mensajes)
+        print(f"⚠️ ¡CAMBIOS DETECTADOS!:\n{texto}")
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         requests.post(url, data={"chat_id": CHAT_ID, "text": f"🛡️ **ALERTA HDS**\n\n{texto}", "parse_mode": "Markdown"})
     else:
-        # En GitHub solo avisamos si hay cambios. En local mandamos OK.
-        if not os.getenv("GITHUB_ACTIONS"):
-            requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", data={"chat_id": CHAT_ID, "text": "✅ Todo en orden."})
+        print("✅ No se detectaron cambios en esta ejecución.")
+    # ------------------------
 
 def revisar_una_vez(carpeta):
     if not os.path.exists("baseline.json"):
+        print("📝 Creando baseline inicial...")
         crear_inventario(carpeta)
         requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
                      data={"chat_id": CHAT_ID, "text": "✅ **Vigilancia Programada:** Entorno sincronizado.", "parse_mode": "Markdown"})
@@ -75,7 +77,7 @@ def revisar_una_vez(carpeta):
         comparar(carpeta)
 
 if __name__ == "__main__":
-    print("🚀 Iniciando el Monitor...") # Esto nos dirá que el script arrancó
+    print("🚀 Iniciando el Monitor...")
     
     if os.getenv("GITHUB_ACTIONS"):
         print("🤖 Detectado entorno: GitHub Actions")
